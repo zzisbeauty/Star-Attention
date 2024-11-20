@@ -1,0 +1,15 @@
+.ipynb_checkpoints/
+__pycache__/
+*.jsonl
+.vscode/
+*.out
+archive/
+hotpotqa.json
+squad.json
+PaulGrahamEssays.json
+test_run.sh
+core.*
+test_scripts
+results/
+dataset/*
+!dataset/README.md
