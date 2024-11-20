@@ -44,7 +44,7 @@ To download a model from HuggingFace, use the script: [`scripts/download_hf_mode
 This repository contains code for launching inference with Star Attention on two benchmarks: RULER and BABILong. The instructions to run each of those benchmarks are shared in the following subsections.
 
 ### RULER
-[[Paper](https://arxiv.org/abs/2404.06654) | [GitHub](https://github.com/hsiehjackson/RULER)]
+[ [Paper](https://arxiv.org/abs/2404.06654) | [GitHub](https://github.com/hsiehjackson/RULER) ]
 
 To run inference on RULER, use the script: [`run_ruler.py`](run_ruler.py).
 
@@ -84,7 +84,7 @@ If you have a multi-node setup (such as a slurm cluster), then you can add the `
 For example, in a system with 8 GPUs on each node, if `-nn 1` and `-np 4` are specified, the script will launch 4 processes (hosts) on a single node. This means that each host is allocated 2 GPUs to load the model. If the model or the block size is too large, you can scale the `nn` and the `np` parameters accordingly. If `-nn 2` and `-np 2`, then the script will launch a total of 4 processes (hosts) across 2 nodes, with each host containing 4 GPUs.
 
 ### BABILong
-[[Paper](ttps://arxiv.org/abs/2406.10149) | [GitHub](https://github.com/booydar/babilong)]
+[ [Paper](https://arxiv.org/abs/2406.10149) | [GitHub](https://github.com/booydar/babilong) ]
 
 To run inference on BABILong, use the script: [`run_babilong.py`](run_babilong.py).
 
@@ -140,9 +140,13 @@ Given a system with $H$ hosts and an input sample with context $c$ followed by q
 <br />
 
 - The context is segmented into contiguous blocks:
-  $$c = [c_1, c_2, \ldots, c_n]$$
+  <div align="center">
+    $$c = [c_1, c_2, \ldots, c_n]$$
+  </div>
 - From the second block, each block $c_i$ is prefixed with $c_1$ - called the anchor block. Thus forming an augmented context:
-  $$c' = [c_1, (c_1, c_2), (c_1, c_3), \ldots, (c_1, c_n)]$$
+  <div align="center">
+    $$c' = [c_1, (c_1, c_2), (c_1, c_3), \ldots, (c_1, c_n)]$$
+  </div>
 - The augmented context blocks are distributed across the $H$ hosts, with each host attending only to its assigned blocks.
   - After processing the context blocks, each host stores the *non-anchor* portion of the KV cache.
 
@@ -158,16 +162,27 @@ Given a system with $H$ hosts and an input sample with context $c$ followed by q
 
 - Designate one host as the *query* host $h_q$.
 - Replicate the query tokens to all the hosts where each host first attends to its locally stored KV cache from phase 1.
-  $$A_h = \left( \frac{\exp\left( \frac{QK_h^\top}{\sqrt{d}} \right)}{\sum_{k=1}^{l_k} \exp\left( \frac{QK_{h,k}^\top}{\sqrt{d}} \right)} \right)V_h$$
+  <div align="center">
+    $$A_h = \left( \frac{\exp\left( \frac{QK_h^\top}{\sqrt{d}} \right)}{\sum_{k=1}^{l_k} \exp\left( \frac{QK_{h,k}^\top}{\sqrt{d}} \right)} \right)V_h$$
+  </div>
 - In addition to the local attention output $A_h$, the hosts also store the sum of exponents from local softmax (i.e. denominator from the equation above).
-  $$s_h = \sum_{k=1}^{l_k} \exp\left( \frac{QK_{h,k}^\top}{\sqrt{d}} \right)$$
+  <div align="center">
+    $$s_h = \sum_{k=1}^{l_k} \exp\left( \frac{QK_{h,k}^\top}{\sqrt{d}} \right)$$
+  </div>
 - The query-host $h_q$ then gathers both the sum of exponents $s_h$ and the local attention output $A_h$ from all hosts:
-  $$s = [s_1, s_2, \ldots, s_{H}]$$
-  $$A = [A_1, A_2, \ldots, A_{H}]$$
+  <div align="center">
+    $$s = [s_1, s_2, \ldots, s_{H}]$$
+    <br/>
+    $$A = [A_1, A_2, \ldots, A_{H}]$$
+  </div>
 - To compute global attention, the query-host first calculates the global sum of exponents (i.e., the global softmax denominator) as:
-  $$s_{\text{global}} = \sum_{h=1}^{H} s_h$$
+  <div align="center">
+    $$s_{\text{global}} = \sum_{h=1}^{H} s_h$$
+  </div>
 - Using this global sum, the query-host computes the final global attention output as:
-  $$A_{\text{global}} = \sum_{h=1}^{H} \frac{s_h}{s_{\text{global}}} A_h$$
+  <div align="center">
+    $$A_{\text{global}} = \sum_{h=1}^{H} \frac{s_h}{s_{\text{global}}} A_h$$
+  </div>
 
 This method ensures that attention scores are correctly normalized across all hosts, requiring only the communication of a single scalar (the sum of exponents, $s_h$) and a vector (the local attention output, $A_h$) per token.
 
