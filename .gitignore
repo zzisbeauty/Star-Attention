@@ -13,3 +13,4 @@ test_scripts
 results/
 dataset/*
 !dataset/README.md
+local_tests

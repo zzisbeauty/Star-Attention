@@ -6,6 +6,106 @@ This repository contains code for the paper [Star Attention: Efficient LLM Infer
 
 The codebase contains the implementation of Star Attention in PyTorch using the [HuggingFace Transformers](https://github.com/huggingface/transformers) library, along with the code for launching inference with Star Attention on two benchmarks: RULER and BABILong.
 
+<div align="center">
+  <table>
+      <thead>
+          <tr>
+              <th rowspan="2" style="text-align: center">Model</th>
+              <th rowspan="2" style="text-align: center">Seq. Len.<br>(K)</th>
+              <th rowspan="2" style="text-align: center">Block Size<br>(K)</th>
+              <th rowspan="2" style="text-align: center">Ring-Attn<br>Acc. (%)</th>
+              <th colspan="2" style="text-align: center">Star-Attn</th>
+          </tr>
+          <tr>
+              <th style="text-align: center">Δ Acc.</th>
+              <th style="text-align: center">Δ Speedup</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td rowspan="4">gradientai<br>Llama3-8B-Instruct-1048K</td>
+              <td style="text-align: center">16</td>
+              <td style="text-align: center">4</td>
+              <td style="text-align: center">86.12</td>
+              <td style="text-align: center">+2.47%</td>
+              <td style="text-align: center">1.1x</td>
+          </tr>
+          <tr>
+              <td style="text-align: center">32</td>
+              <td style="text-align: center">8</td>
+              <td style="text-align: center">82.52</td>
+              <td style="text-align: center">+1.54%</td>
+              <td style="text-align: center">1.2x</td>
+          </tr>
+          <tr>
+              <td style="text-align: center">64</td>
+              <td style="text-align: center">16</td>
+              <td style="text-align: center">79.05</td>
+              <td style="text-align: center">+1.28%</td>
+              <td style="text-align: center">1.8x</td>
+          </tr>
+          <tr>
+              <td style="text-align: center">128</td>
+              <td style="text-align: center">32</td>
+              <td style="text-align: center">77.39</td>
+              <td style="text-align: center">+1.23%</td>
+              <td style="text-align: center">2.7x</td>
+          </tr>
+          <tr>
+              <td rowspan="3">meta-llama<br>Llama-3.1-70B-Instruct</td>
+              <td style="text-align: center">16</td>
+              <td style="text-align: center">4</td>
+              <td style="text-align: center">95.09</td>
+              <td style="text-align: center">-2.85%</td>
+              <td style="text-align: center">1.7x</td>
+          </tr>
+          <tr>
+              <td style="text-align: center">32</td>
+              <td style="text-align: center">8</td>
+              <td style="text-align: center">94.61</td>
+              <td style="text-align: center">-2.70%</td>
+              <td style="text-align: center">2.0x</td>
+          </tr>
+          <tr>
+              <td style="text-align: center">64</td>
+              <td style="text-align: center">16</td>
+              <td style="text-align: center">88.54</td>
+              <td style="text-align: center">-1.63%</td>
+              <td style="text-align: center">4.7x</td>
+          </tr>
+      </tbody>
+  </table>
+  <p align="justify">
+    <b>Table 1:</b> Inference speedup obtained by Star Attention compared to Ring (Global) Attention on RULER. The Δ for star attention shows the relative accuracy degradation and the relative speedup compared to global attention. When the block size is equal to one-quarter of the sequence length and as sequence length increases, Star Attention achieves significant speedup over Ring (Global) Attention while maintaining the accuracy. For larger models, such as Llama-3.1 70B Instruct, the speedup benefits of Star Attention are even more pronounced.
+  </p>
+</div>
+<br>
+<div align="center">
+  <img
+    src="images/star_attn_acc_ruler_babilong.png"
+    alt="star attention accuracy on ruler and babilong"
+  />
+  <p align="justify">
+    <b>Figure 1:</b> Accuracy (%) of star attention on RULER and BABILONG evaluated on sequence lengths of 16K, 32K, 64K, and 128K. In all experiments, the block size and anchor block size are set to one-quarter of the total sequence length. Results using the Llama-3-8B-Instruct-262k, Llama-3.1-8B-Instruct and Llama-3.1-8B-Base models demonstrate that star attention retains 95-100% of the accuracy of global attention, and in some cases, even outperform it.
+  </p>
+</div>
+
+## Table of Contents
+1. [Setup Instructions](#setup-instructions)
+   - [Dependencies](#dependencies)
+   - [RULER Setup](#ruler-setup)
+   - [Downloading Models](#downloading-models)
+2. [Launching Inference with Star Attention](#launching-inference-with-star-attention)
+   - [RULER](#ruler)
+   - [BABILong](#babilong)
+   - [Running Inference on Custom Data](#running-inference-on-custom-data)
+3. [Two Phases of Star Attention](#two-phases-of-star-attention)
+   - [Phase 1 - Context Encoding](#phase-1---context-encoding)
+   - [Phase 2 - Query Processing and Token Generation](#phase-2---query-processing-and-token-generation)
+4. [Citation](#citation)
+5. [References](#references)
+6. [Contact/Getting Help](#contactgetting-help)
+
 
 ## Setup Instructions
 
@@ -191,6 +291,11 @@ This method ensures that attention scores are correctly normalized across all ho
 ```
 @article{}
 ```
+
+## References
+
+- Llama Implementation: [huggingface/transformers](https://github.com/huggingface/transformers)
+- Ring Attention Implementation: [zhuzilin/ring-flash-attention](https://github.com/zhuzilin/ring-flash-attention)
 
 ## Contact/Getting Help
 
