@@ -4,7 +4,9 @@ This repository contains code for the paper [Star Attention: Efficient LLM Infer
 1. **Phase 1 - Context Encoding**: The context tokens are processed using blockwise-local attention, with the context segmented into blocks where each block is prefixed with an anchor block.
 2. **Phase 2 - Query Processing and Token Generation**: The query and response tokens attend to all prior cached tokens through sequence-global attention.
 
-The codebase contains the implementation of Star Attention in PyTorch using the [HuggingFace Transformers](https://github.com/huggingface/transformers) library, along with the code for launching inference with Star Attention on two benchmarks: RULER and BABILong.
+Star Attention **improves the inference time by up to 11x** while **preserving 95-100% of accuracy**. The method is **compatible with most Transformer-based LLMs trained with global attention, operating seamlessly out-of-the-box without additional training/finetuning.** Furthermore, Star Attention is **orthogonal to other optimization methods**, including Flash Attention and KV cache compression techniques, allowing for potential combined enhancements.
+
+This codebase contains the implementation of Star Attention in PyTorch using the [HuggingFace Transformers](https://github.com/huggingface/transformers) library, along with the code for launching inference with Star Attention on two benchmarks: RULER and BABILong.
 
 <div align="center">
   <table>
@@ -76,7 +78,7 @@ The codebase contains the implementation of Star Attention in PyTorch using the 
       </tbody>
   </table>
   <p align="justify">
-    <b>Table 1:</b> Inference speedup obtained by Star Attention compared to Ring (Global) Attention on RULER. The Δ for star attention shows the relative accuracy degradation and the relative speedup compared to global attention. When the block size is equal to one-quarter of the sequence length and as sequence length increases, Star Attention achieves significant speedup over Ring (Global) Attention while maintaining the accuracy. For larger models, such as Llama-3.1 70B Instruct, the speedup benefits of Star Attention are even more pronounced.
+    <b>Table 1:</b> Star Attention vs Ring Attention (baseline) accuracy and relative inference speed-up. The Δ for Star Attention shows the relative accuracy improvement (+) or degradation (-). We set block size to one-quarter of the sequence length.  Star Attention achieves significant speedup over Ring Attention while maintaining the accuracy. For larger models, the speedup of Star Attention is even more pronounced.
   </p>
 </div>
 <br>
@@ -86,7 +88,7 @@ The codebase contains the implementation of Star Attention in PyTorch using the 
     alt="star attention accuracy on ruler and babilong"
   />
   <p align="justify">
-    <b>Figure 1:</b> Accuracy (%) of star attention on RULER and BABILONG evaluated on sequence lengths of 16K, 32K, 64K, and 128K. In all experiments, the block size and anchor block size are set to one-quarter of the total sequence length. Results using the Llama-3-8B-Instruct-262k, Llama-3.1-8B-Instruct and Llama-3.1-8B-Base models demonstrate that star attention retains 95-100% of the accuracy of global attention, and in some cases, even outperform it.
+    <b>Figure 1:</b> Accuracy (%) of Star Attention on RULER and BABILong evaluated on sequence lengths of 16K, 32K, 64K, and 128K. In all experiments, the block size and anchor block size are set to one-quarter of the total sequence length. Results using the Llama-3-8B-Instruct-262k, Llama-3.1-8B-Instruct and Llama-3.1-8B-Base models demonstrate that Star Attention retains 95-100\% of the accuracy of global attention, and in some cases, even outperform it.
   </p>
 </div>
 
