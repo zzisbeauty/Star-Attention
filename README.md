@@ -245,7 +245,7 @@ Given a system with $H$ hosts and an input sample with context $c$ followed by q
   </div>
 - From the second block, each block $c_i$ is prefixed with $c_1$ - called the anchor block. Thus forming an augmented context:
   <div align="center">
-    $$c' = [c_1, (c_1, c_2), (c_1, c_3), \ldots, (c_1, c_n)]$$
+    $$c' = [c_1, (c_1 \: c_2), (c_1 \: c_3), \ldots, (c_1 \: c_n)]$$
   </div>
 - The augmented context blocks are distributed across the $H$ hosts, with each host attending only to its assigned blocks.
   - After processing the context blocks, each host stores the *non-anchor* portion of the KV cache.
