@@ -1,6 +1,6 @@
 # Star Attention: Efficient LLM Inference over Long Sequences
 
-This repository contains code for the paper [Star Attention: Efficient LLM Inference over Long Sequences](). Star Attention is a novel block-sparse attention mechanism designed to enable efficient inference on long sequences in transformer-based LLMs. The method operates in two phases:
+This repository contains code for the paper [Star Attention: Efficient LLM Inference over Long Sequences](https://arxiv.org/abs/2411.17116). Star Attention is a novel block-sparse attention mechanism designed to enable efficient inference on long sequences in transformer-based LLMs. The method operates in two phases:
 1. **Phase 1 - Context Encoding**: The context tokens are processed using blockwise-local attention, with the context segmented into blocks where each block is prefixed with an anchor block.
 2. **Phase 2 - Query Processing and Token Generation**: The query and response tokens attend to all prior cached tokens through sequence-global attention.
 
@@ -88,7 +88,7 @@ This codebase contains the implementation of Star Attention in PyTorch using the
     alt="star attention accuracy on ruler and babilong"
   />
   <p align="justify">
-    <b>Figure 1:</b> Accuracy (%) of Star Attention on RULER and BABILong evaluated on sequence lengths of 16K, 32K, 64K, and 128K. In all experiments, the block size and anchor block size are set to one-quarter of the total sequence length. Results using the Llama-3-8B-Instruct-262k, Llama-3.1-8B-Instruct and Llama-3.1-8B-Base models demonstrate that Star Attention retains 95-100\% of the accuracy of global attention, and in some cases, even outperform it.
+    <b>Figure 1:</b> Accuracy (%) of Star Attention on RULER and BABILong evaluated on sequence lengths of 16K, 32K, 64K, and 128K. In all experiments, the block size and anchor block size are set to one-quarter of the total sequence length. Results using the Llama-3-8B-Instruct-262k, Llama-3.1-8B-Instruct and Llama-3.1-8B-Base models demonstrate that Star Attention retains 95-100% of the accuracy of global attention, and in some cases, even outperform it.
   </p>
 </div>
 
@@ -291,7 +291,12 @@ This method ensures that attention scores are correctly normalized across all ho
 
 ## Citation
 ```
-@article{}
+@article{acharya2024starattention,
+  title={Star Attention: Efficient LLM Inference over Long Sequences}, 
+  author={Shantanu Acharya and Fei Jia and Boris Ginsburg},
+  journal={arXiv:2411.17116},
+  year={2024},
+}
 ```
 
 ## References
