@@ -6,6 +6,6 @@ transformers==4.44.0
 flash-attn==2.6.3
 tqdm
 wonderwords
-yaml
+pyyaml
 nltk
 scipy
