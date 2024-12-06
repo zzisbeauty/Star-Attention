@@ -87,7 +87,7 @@ def main():
     answer_prefix = config['answer_prefix'] if 'answer_prefix' in config else ''
     model_template_context, model_template_query = model_template.split('{task_template}')
     config['context_template'] = model_template_context + config['context_template']
-    config['query_template'] = config['query_template'] + answer_prefix + model_template_query
+    config['query_template'] = config['query_template'] + model_template_query + answer_prefix
 
     # Split task into multiple chunks
     chunks = [

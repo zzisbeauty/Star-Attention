@@ -102,8 +102,8 @@ vt:
 cwe:
   task: common_words_extraction
   args:
-    freq_cw: 30
-    freq_ucw: 3
+    freq_cw: 300
+    freq_ucw: 30
     num_cw: 10
 
 fwe:
