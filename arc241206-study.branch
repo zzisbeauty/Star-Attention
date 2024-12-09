@@ -1,0 +1,32 @@
+### 临时记录
+
+- 确定读取什么任务的数据
+'python ruler/data/prepare.py --save_dir /home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/data --task qa_1 
+    --tokenizer_path /root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5 
+    --tokenizer_type hf --max_seq_length 6144 --model_template_type llama3 --num_samples 500'
+
+- 在 prepare 阶段确定是什么任务后，就知道是什么test数据了，那么第二步就可以开始真正准备当前任务的数据【注意这里的 templates 信息】
+python /home/Star-Attention/ruler/data/synthetic/qa.py  --save_dir  /home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/data  --save_name qa_1        
+     --subset validation         
+     --tokenizer_path /root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5         
+     --tokenizer_type hf    --max_seq_length 6144    --tokens_to_generate 32   --num_samples 500   --random_seed 42    
+     --dataset squad    
+     --pre_samples 0         
+     --context_template "<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+                        You are a helpful assistant.<|eot_id|><|start_header_id|>user<|end_header_id|>
+                        Answer the question based on the given documents. Only give me the answer and do not output any other words.
+                        The following are given documents.
+                        {context}" 
+    --query_template "Answer the question based on the given documents. Only give me the answer and do not output any other words.
+
+Question: {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+Answer:"
+
+- 当 validation 数据
+torchrun --nnodes=1 --nproc_per_node=1 run_star_attn_inference.py 
+    --model_path /root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5 
+    --attn_type star 
+    --block_size 1 --anchor_block_size -1 
+    --tokens_to_generate 128 
+    --input_path /home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/data/qa_1/validation.jsonl 
+    --output_path /home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/qa_1.jsonl

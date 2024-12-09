@@ -22,9 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', '--name', required=True, help='name of the model to download from huggingface hub')
-parser.add_argument(
-    '-d', '--dir', default=(os.path.join(BASE_DIR, 'hf_models')), help='directory where the model will be downloaded'
-)
+parser.add_argument('-d', '--dir', default=(os.path.join(BASE_DIR, 'hf_models')), help='directory where the model will be downloaded')
 parser.add_argument('-t', '--token', default=None, help='huggingface hub token')
 args = parser.parse_args()
 

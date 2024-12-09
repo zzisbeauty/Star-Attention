@@ -78,9 +78,7 @@ def main():
     config.update(TASKS[config['task']])
 
     # Add templates
-    assert args.model_template_type in PROMPT_TEMPLATES, print(
-        f'{args.model_template_type} is not found in {PROMPT_TEMPLATES.keys()}'
-    )
+    assert args.model_template_type in PROMPT_TEMPLATES, print(f'{args.model_template_type} is not found in {PROMPT_TEMPLATES.keys()}')
     model_template = PROMPT_TEMPLATES[args.model_template_type]['template']
 
     # Add answer prefix for all models
@@ -113,15 +111,14 @@ def main():
         --num_samples {num_samples} \
         --random_seed {random_seed} \
         {additional_args} \
-        {f"--remove_newline_tab" if args.remove_newline_tab else ""} \
-        {f"--pre_samples {pre_samples}" if config['task'] == 'qa' else ""} \
+        {f"--remove_newline_tab " if args.remove_newline_tab else ""} \
+        {f"--pre_samples {pre_samples} " if config['task'] == 'qa' else ""} \
         --context_template "{config['context_template']}" \
         --query_template "{config['query_template']}"
         """
+        print("start now task data process command.........")
         print(command)
-        result = subprocess.run(
-            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-        )
+        result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
         if result.returncode == 0:
             print("Output:")

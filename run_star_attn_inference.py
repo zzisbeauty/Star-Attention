@@ -192,20 +192,36 @@ def main(
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', required=True, help='path to the model checkpoint')
-    parser.add_argument('--attn_type', required=True, help='type of attention')
-    parser.add_argument('--block_size', type=int, default=-1, help='block size for star attention')
+    parser.add_argument('--model_path', 
+                        required=False,
+                        default='/root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5',
+                        help='path to the model checkpoint')
+    parser.add_argument('--attn_type', 
+                        required=False, 
+                        default='star',
+                        help='type of attention')
+    
+    parser.add_argument('--block_size', type=int, 
+                        default=1, 
+                        help='block size for star attention')
     parser.add_argument('--anchor_block_size', type=int, default=-1, help='anchor block size for star attention')
-    parser.add_argument('--tokens_to_generate', type=int, required=True, help='number of tokens to generate')
+
+    parser.add_argument('--tokens_to_generate', type=int, 
+                        required=False, 
+                        default=128,
+                        help='number of tokens to generate')
     parser.add_argument('--stop_words', default='', help='comma separated stop words for generation')
-    parser.add_argument('--input_path', required=True, help='path to the input jsonl file')
-    parser.add_argument('--num_samples', type=int, default=-1, help='number of samples to use from the input file')
-    parser.add_argument(
-        '--output_path', required=True, help='path to the jsonl file where the generated predictions will be saved'
-    )
-    parser.add_argument(
-        '--use_cache', action='store_true', help='resume from last generation if the output file already exists'
-    )
+
+    parser.add_argument('--input_path', 
+                        required=False,
+                        default='/home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/data/qa_1/validation.jsonl', 
+                        help='path to the input jsonl file')
+    parser.add_argument('--num_samples', type=int, default=1, help='number of samples to use from the input file')
+    parser.add_argument('--output_path', 
+                        required=False, 
+                        default='/home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/qa_1.jsonl',
+                        help='path to the jsonl file where the generated predictions will be saved')
+    parser.add_argument('--use_cache', action='store_true', help='resume from last generation if the output file already exists')
     args = parser.parse_args()
 
     if not os.path.exists(args.model_path):

@@ -29,14 +29,24 @@ def define_cmd_arguments():
     parser = argparse.ArgumentParser()
 
     # Model Parameters
-    parser.add_argument('-n', '--model_name', required=True, help='experiment name prefix')
-    parser.add_argument('-p', '--model_path', required=True, help='model path')
+    parser.add_argument('-n', '--model_name', 
+                        required=False, 
+                        default='shenzhi-wang/Llama3-8B-Chinese-Chat',
+                        help='experiment name prefix')
+    
+    # parser.add_argument('-p', '--model_path', required=True, help='model path')
+    parser.add_argument('-p', '--model_path', 
+                        required=False, 
+                        default='/root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5',
+                        help='model path')
+    
     parser.add_argument(
         '-pc',
         '--prompt_config',
-        required=True,
+        # required=True,
+        default='llama3',
         choices=PROMPT_TEMPLATES.keys(),
-        help='prompt template config name. options from `babilong/template.py`',
+        help='prompt template config name. options from `ruler/data/template.py`',
     )
 
     # Attention Configuration
@@ -49,10 +59,14 @@ def define_cmd_arguments():
         '-l',
         '--seq_lengths',
         type=int,
-        required=True,
+        # required=True,
+        default=[16000],
         nargs='+',
         help='sequence lengths',
     )
+
+
+    
     parser.add_argument('-t', '--tasks', default=TASKS, nargs='+', choices=TASKS, help='tasks')
     parser.add_argument(
         '-d', '--pregen_data_dir', default=None, help='name pre-generated data directory in the `dataset` folder'

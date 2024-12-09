@@ -22,19 +22,19 @@ from ruler import PROMPT_TEMPLATES
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 TASKS = [
-    'niah_single_1',
-    'niah_single_2',
-    'niah_single_3',
-    'niah_multikey_1',
-    'niah_multikey_2',
-    'niah_multikey_3',
-    'niah_multivalue',
-    'niah_multiquery',
-    'vt',
-    'cwe',
-    'fwe',
+    # 'niah_single_1',
+    # 'niah_single_2',
+    # 'niah_single_3',
+    # 'niah_multikey_1',
+    # 'niah_multikey_2',
+    # 'niah_multikey_3',
+    # 'niah_multivalue',
+    # 'niah_multiquery',
+    # 'vt',
+    # 'cwe',
+    # 'fwe',
     'qa_1',
-    'qa_2',
+    # 'qa_2',
 ]
 
 
@@ -42,40 +42,50 @@ def define_cmd_arguments():
     parser = argparse.ArgumentParser()
 
     # Model Parameters
-    parser.add_argument('-n', '--model_name', required=True, help='experiment name prefix')
-    parser.add_argument('-p', '--model_path', required=True, help='model path')
+    # parser.add_argument('-n', '--model_name', required=True, help='experiment name prefix')
+    parser.add_argument('-n', '--model_name', 
+                        required=False, 
+                        default='shenzhi-wang-llama3',
+                        help='experiment name prefix')
+    
+    # parser.add_argument('-p', '--model_path', required=True, help='model path')
+    parser.add_argument('-p', '--model_path', 
+                        required=False, 
+                        default='/root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5',
+                        help='model path')
+
+
     parser.add_argument(
         '-pc',
         '--prompt_config',
-        required=True,
+        # required=True,
+        default='llama3',
         choices=PROMPT_TEMPLATES.keys(),
         help='prompt template config name. options from `ruler/data/template.py`',
     )
 
     # Attention Configuration
     parser.add_argument('-a', '--attn_type', default='star', help='attention type')
-    parser.add_argument('-bs', '--block_size', type=int, default=-1, help='context block size')
+    parser.add_argument('-bs', '--block_size', type=int, default=1, help='context block size')
     parser.add_argument('-as', '--anchor_block_size', type=int, default=-1, help='anchor block size')
 
     # Sequence Lengths and Tasks
     parser.add_argument(
-        '-l',
-        '--seq_lengths',
-        type=int,
-        required=True,
+        '-l','--seq_lengths',type=int,
+        # required=True,
+        default=[6144],
         nargs='+',
         help='sequence lengths',
     )
-    parser.add_argument('-t', '--tasks', default=TASKS, nargs='+', choices=TASKS, help='tasks')
-    parser.add_argument(
-        '-d', '--pregen_data_dir', default=None, help='name pre-generated data directory in the `dataset` folder'
-    )
+    parser.add_argument('-t', '--tasks', default=TASKS, nargs='+', choices=TASKS, help='task of list')
+    parser.add_argument('-d', '--pregen_data_dir', default=None, help='name pre-generated data directory in the `dataset` folder')
 
     # Distributed Inference Parameters
-    parser.add_argument(
-        '-nn', '--num_nodes', type=int, default=1, help='number of nodes. For dense attention, default is set to 1.'
-    )
-    parser.add_argument('-np', '--nproc_per_node', type=int, default=None, help='number of processes per node')
+    parser.add_argument('-nn', '--num_nodes', type=int, default=1, help='number of nodes. For dense attention, default is set to 1.')
+
+    # parser.add_argument('-np', '--nproc_per_node', type=int, default=None, help='number of processes per node')
+    parser.add_argument('-np', '--nproc_per_node', type=int, default=1, help='number of processes per node')
+
 
     # Logging
     parser.add_argument(
@@ -94,6 +104,7 @@ def submit_job(cmd, log_dir, filename):
         f.write(cmd)
 
     # Submit the job
+    # print(BASE_DIR)
     os.system(f'cd {BASE_DIR}; {cmd}')
 
 
@@ -111,9 +122,7 @@ def main(
     pregen_data_dir: Optional[str] = None,
 ):
     if 'star' in attn_type:
-        assert (
-            block_size >= anchor_block_size
-        ), f'block_size ({block_size}) must be greater than anchor_block_size ({anchor_block_size})'
+        assert (block_size >= anchor_block_size), f'block_size ({block_size}) must be greater than anchor_block_size ({anchor_block_size})'
 
     # Path to any pre-generated data, if exists
     if pregen_data_dir is not None:
@@ -132,10 +141,10 @@ def main(
             )
             continue
 
-        # Depending on the sequence length and the block size, adjust the number of processes
+        # Depending on the sequence length and the block size, adjust the number of processes 根据序列长度和块大小调整进程数
         if attn_type != 'dense':
             nproc_per_node_seq_len = min(nproc_per_node, seq_length // block_size)
-            inference_executor = f'torchrun --nnodes={num_nodes} --nproc_per_node={nproc_per_node_seq_len}'
+            inference_executor = f'torchrun --nnodes={num_nodes} --nproc_per_node={nproc_per_node_seq_len}' # 'torchrun --nnodes=1 --nproc_per_node=2'
         else:
             inference_executor = 'python'
 
@@ -150,14 +159,12 @@ def main(
             task_log_dir = os.path.join(log_dir, task)
 
             # Prepare dataset
-            task_data_file = (
-                os.path.join(pregen_data_dir, str(seq_length), task, 'validation.jsonl') if pregen_data_dir else None
-            )
+            task_data_file = (os.path.join(pregen_data_dir, str(seq_length), task, 'validation.jsonl') if pregen_data_dir else None)
             if task_data_file is None or not os.path.exists(task_data_file):
                 data_gen_cmd = (
                     f'python ruler/data/prepare.py '
                     f'--save_dir {data_dir} '
-                    f'--benchmark synthetic '
+                    # f'--benchmark synthetic '
                     f'--task {task} '
                     f'--tokenizer_path {model_path} '
                     f'--tokenizer_type hf '
@@ -177,14 +184,15 @@ def main(
                 f'--anchor_block_size {anchor_block_size} '
                 f'--tokens_to_generate 128 '
                 f'--input_path {task_data_file} '
-                f'--output_path {os.path.join(results_dir, task)}.jsonl'
-                f'--stop_words {stop_words}'
+                f'--output_path {os.path.join(results_dir, task)}.jsonl '
+                # f'--stop_words {stop_words}'
             )
             submit_job(task_gen_cmd, task_log_dir, 'generate_predictions.sh')
 
         # Run response scoring
         eval_cmd = 'python ruler/eval/evaluate.py ' f'--data_dir {results_dir} ' '--benchmark synthetic'
         submit_job(eval_cmd, log_dir, 'evaluate_responses.sh')
+        a = 1
 
 
 if __name__ == '__main__':
@@ -208,9 +216,7 @@ if __name__ == '__main__':
     model_name_suffix = ''
     if 'star' in args.attn_type:
         anchor_block_size = args.anchor_block_size if args.anchor_block_size > 0 else args.block_size
-        anchor_block_size_repr = (
-            f'{anchor_block_size}' if anchor_block_size < 1024 else f'{anchor_block_size // 1024}k'
-        )
+        anchor_block_size_repr = (f'{anchor_block_size}' if anchor_block_size < 1024 else f'{anchor_block_size // 1024}k')
         block_size_repr = f'{args.block_size}' if args.block_size < 1024 else f'{args.block_size // 1024}k'
         model_name_suffix = f'_b{block_size_repr}a{anchor_block_size_repr}'
     args.output_dir = os.path.join(args.output_dir, f'{args.model_name}_{args.attn_type}{model_name_suffix}')

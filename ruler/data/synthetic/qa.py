@@ -24,7 +24,12 @@ python qa.py \
     --max_seq_length=4096 \
     --tokens_to_generate=128 \
     --num_samples=10 \
-    --template="Answer the question based on the given documents. Only give me the answer and do not output any other words.\n\nThe following are given documents.\n\n{context}\n\nAnswer the question based on the given documents. Only give me the answer and do not output any other words.\n\nQuestion: {query} Answer:"
+    --template="
+        Answer the question based on the given documents. Only give me the answer and do not output any other words.\n\n
+        The following are given documents.\n\n{context}\n\n
+        Answer the question based on the given documents. Only give me the answer and do not output any other words.\n\n
+        Question: {query} 
+        Answer:"
 """
 import argparse
 import json

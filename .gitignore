@@ -4,8 +4,8 @@ __pycache__/
 .vscode/
 *.out
 archive/
-hotpotqa.json
-squad.json
+# hotpotqa.json
+# squad.json
 PaulGrahamEssays.json
 test_run.sh
 core.*
@@ -14,3 +14,4 @@ results/
 dataset/*
 !dataset/README.md
 local_tests
+pandas
