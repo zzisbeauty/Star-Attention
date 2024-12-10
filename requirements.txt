@@ -1,11 +1,17 @@
---find-links https://download.pytorch.org/whl/cu121
+beautifulsoup4==4.12.3
+datasets==3.1.0
+flash_attn==2.6.3
+html2text==2024.2.26
+huggingface_hub==0.26.3
+matplotlib==3.9.3
+nltk==3.9.1
+numpy==2.2.0
+pandas==2.2.3
+PyYAML==6.0.2
+PyYAML==6.0.2
+scipy==1.14.1
+seaborn==0.13.2
 torch==2.3.1
-torchaudio==2.3.1
-torchvision==0.18.1
+tqdm==4.66.5
 transformers==4.44.0
-flash-attn==2.6.3
-tqdm
-wonderwords
-pyyaml
-nltk
-scipy
+wonderwords==2.2.0
