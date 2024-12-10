@@ -25,6 +25,11 @@ from tqdm import tqdm
 from model import DenseAttentionModel, RingAttentionModel, StarAttentionModel
 
 
+os.environ["RANK"] = "0"
+os.environ["WORLD_SIZE"] = "1"
+os.environ["MASTER_ADDR"] = "127.0.0.1"
+os.environ["MASTER_PORT"] = "29500"
+
 def read_jsonl(filename, num_lines=-1):
     lines = []
     with open(filename) as f:
@@ -36,17 +41,15 @@ def read_jsonl(filename, num_lines=-1):
 
 
 def init_distributed():
-    """Initialize the distributed environment."""
-
+    """ Initialize the distributed environment. """
     if 'RANK' in os.environ:
-        dist.init_process_group('nccl')
+        dist.init_process_group('nccl')  # 这个是多进程分布式训练过程中初始化 train 实例的关键
         rank = dist.get_rank()
         world_size = dist.get_world_size()
         print(f'[run_star_attn_inference.init_distributed] Rank: {rank}, World size: {world_size}')
     else:
         rank = 0
         world_size = 1
-
     return rank, world_size
 
 
@@ -59,7 +62,6 @@ def get_resume_point(input_data, output_file):
             input_data = [x for x in input_data if x['index'] not in pred_index]
         else:
             input_data = input_data[len(output_data) :]
-
     return input_data
 
 
@@ -114,7 +116,6 @@ def main(
     use_cache: bool = False,
 ):
     """Run inference using Star-Attention.
-
     Args:
         model_path: path to the model checkpoint
         attn_type: type of attention. One of ['dense', 'star', 'starkv']
@@ -159,7 +160,7 @@ def main(
     # Generate predictions
     # setting buffering=1 to force to dump the output after every line, so that we can see intermediate generations
     with open(output_file, output_file_mode, encoding='utf-8', buffering=1) as fout:
-        for input_sample in tqdm(input_data, total=len(input_data)):
+        for input_sample in tqdm(input_data, total=len(input_data)): # model 内部处理 star-attention 过程
             pred = model(prompt_context=input_sample['input_context'], prompt_query=input_sample['input_query'])
             if rank == 0:
                 fout.write(
@@ -199,7 +200,7 @@ if __name__ == '__main__':
                         default='star',
                         help='type of attention')
     parser.add_argument('--block_size', type=int, 
-                        default=1, 
+                        default=2, 
                         help='block size for star attention')
     parser.add_argument('--anchor_block_size', type=int, default=-1, help='anchor block size for star attention')
     parser.add_argument('--tokens_to_generate', type=int, 

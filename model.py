@@ -55,7 +55,8 @@ class DistributedInferenceBaseModel:
     def _init_distributed(self):
         """Initialize the distributed environment"""
 
-        if dist.is_initialized():
+        tmp = dist.is_initialized()
+        if tmp:
             self.world_size = dist.get_world_size()
             self.local_world_size = int(os.environ.get('LOCAL_WORLD_SIZE', 1))
 
@@ -195,7 +196,7 @@ class StarAttentionModel(DistributedInferenceBaseModel):
         return ctx_ids, position_ids, ctx_len
 
     def _process_blockwise_context(self, ctx_ids_blocks, position_ids_blocks):
-        """Phase 1 of Star Attention: Blockwise Context Encoding with Anchor Blocks"""
+        """ Phase 1 of Star Attention: Blockwise Context Encoding with Anchor Blocks """
 
         # If the anchor block size is not provided, use the entire first block
         if self.anchor_block_size is None:
@@ -210,9 +211,7 @@ class StarAttentionModel(DistributedInferenceBaseModel):
             # From 2nd block onwards, prepend the anchor block to the current block
             if self.rank != 0 or idx > 0:
                 ctx_block = torch.cat((ctx_ids_blocks[0][0][:, : self.anchor_block_size], ctx_block), dim=-1)
-                position_block = torch.cat(
-                    (position_ids_blocks[0][0][:, : self.anchor_block_size], position_block), dim=-1
-                )
+                position_block = torch.cat((position_ids_blocks[0][0][:, : self.anchor_block_size], position_block), dim=-1)
 
             with torch.no_grad():
                 kv_block = self.model(
@@ -243,11 +242,11 @@ class StarAttentionModel(DistributedInferenceBaseModel):
         # Prepare the context
         ctx_ids, position_ids, ctx_len = self._tokenize_and_partition_context(prompt_context)
 
-        # Split the context into blocks and divide the blocks among the ranks
-        ctx_ids_blocks = torch.tensor_split(torch.stack(ctx_ids.split(self.block_size, dim=-1)), self.world_size)
-        position_ids_blocks = torch.tensor_split(
-            torch.stack(position_ids.split(self.block_size, dim=-1)), self.world_size
-        )
+        # Split the context into blocks and divide the blocks among the ranks # block_size=1 > 128000;
+        tmp1 = ctx_ids.split(self.block_size, dim=-1) # 将输入序列进行分块 blocks
+        tmp2 = torch.stack(tmp1)
+        ctx_ids_blocks = torch.tensor_split(tmp2, self.world_size)
+        position_ids_blocks = torch.tensor_split(torch.stack(position_ids.split(self.block_size, dim=-1)), self.world_size)
 
         # Phase 1: Generate the KV cache for the local context
         kv_rank = self._process_blockwise_context(ctx_ids_blocks, position_ids_blocks)

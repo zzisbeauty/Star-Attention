@@ -1,0 +1,17 @@
+- [x] 可以用来执行 torchrun 的 debug 测试
+
+
+
+
+
+
+
+
+
+==============================================================================================================================
+
+torchrun --nnodes=1 --nproc_per_node=1 run_star_attn_inference.py 
+    --model_path /root/.cache/huggingface/hub/models--shenzhi-wang--Llama3-8B-Chinese-Chat/snapshots/f25f13cb2571e70e285121faceac92926b51e6f5 
+    --attn_type star --block_size 1 --anchor_block_size -1 --tokens_to_generate 32 
+    --input_path /home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/data/qa_1/validation.jsonl 
+    --output_path /home/Star-Attention/results/shenzhi-wang-llama3_star_b1a1/6144/qa_1.jsonl --stop_words "<|end_of_text|>,<|eom_id|>,<|eot_id|>"'
